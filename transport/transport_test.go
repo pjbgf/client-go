@@ -271,11 +271,13 @@ func TestNew(t *testing.T) {
 				},
 			},
 		},
-		"nil holders": {
+		"nil holders and nil regular": {
 			Config: &Config{
 				TLS: TLSConfig{
+					GetCert:       nil,
 					GetCertHolder: nil,
 				},
+				Dial:       nil,
 				DialHolder: nil,
 			},
 			Err:          false,
@@ -286,48 +288,13 @@ func TestNew(t *testing.T) {
 			Insecure:     false,
 			DefaultRoots: false,
 		},
-		"non-nil dial holder and nil internal": {
+		"nil holders and non-nil regular get cert": {
 			Config: &Config{
 				TLS: TLSConfig{
+					GetCert:       func() (*tls.Certificate, error) { return nil, nil },
 					GetCertHolder: nil,
 				},
-				DialHolder: &DialHolder{},
-			},
-			Err: true,
-		},
-		"non-nil cert holder and nil internal": {
-			Config: &Config{
-				TLS: TLSConfig{
-					GetCertHolder: &GetCertHolder{},
-				},
-				DialHolder: nil,
-			},
-			Err: true,
-		},
-		"non-nil dial holder+internal": {
-			Config: &Config{
-				TLS: TLSConfig{
-					GetCertHolder: nil,
-				},
-				DialHolder: &DialHolder{
-					Dial: func(ctx context.Context, network, address string) (net.Conn, error) { return nil, nil },
-				},
-			},
-			Err:          false,
-			TLS:          true,
-			TLSCert:      false,
-			TLSErr:       false,
-			Default:      false,
-			Insecure:     false,
-			DefaultRoots: true,
-		},
-		"non-nil cert holder+internal": {
-			Config: &Config{
-				TLS: TLSConfig{
-					GetCertHolder: &GetCertHolder{
-						GetCert: func() (*tls.Certificate, error) { return nil, nil },
-					},
-				},
+				Dial:       nil,
 				DialHolder: nil,
 			},
 			Err:          false,
@@ -338,11 +305,100 @@ func TestNew(t *testing.T) {
 			Insecure:     false,
 			DefaultRoots: true,
 		},
-		"non-nil holders+internal with global address": {
+		"nil holders and non-nil regular dial": {
 			Config: &Config{
 				TLS: TLSConfig{
+					GetCert:       nil,
+					GetCertHolder: nil,
+				},
+				Dial:       func(ctx context.Context, network, address string) (net.Conn, error) { return nil, nil },
+				DialHolder: nil,
+			},
+			Err:          false,
+			TLS:          true,
+			TLSCert:      false,
+			TLSErr:       false,
+			Default:      false,
+			Insecure:     false,
+			DefaultRoots: true,
+		},
+		"non-nil dial holder and nil regular": {
+			Config: &Config{
+				TLS: TLSConfig{
+					GetCert:       nil,
+					GetCertHolder: nil,
+				},
+				Dial:       nil,
+				DialHolder: &DialHolder{},
+			},
+			Err: true,
+		},
+		"non-nil cert holder and nil regular": {
+			Config: &Config{
+				TLS: TLSConfig{
+					GetCert:       nil,
+					GetCertHolder: &GetCertHolder{},
+				},
+				Dial:       nil,
+				DialHolder: nil,
+			},
+			Err: true,
+		},
+		"non-nil dial holder and non-nil regular": {
+			Config: &Config{
+				TLS: TLSConfig{
+					GetCert:       nil,
+					GetCertHolder: nil,
+				},
+				Dial:       func(ctx context.Context, network, address string) (net.Conn, error) { return nil, nil },
+				DialHolder: &DialHolder{},
+			},
+			Err: true,
+		},
+		"non-nil cert holder and non-nil regular": {
+			Config: &Config{
+				TLS: TLSConfig{
+					GetCert:       func() (*tls.Certificate, error) { return nil, nil },
+					GetCertHolder: &GetCertHolder{},
+				},
+				Dial:       nil,
+				DialHolder: nil,
+			},
+			Err: true,
+		},
+		"non-nil dial holder+internal and non-nil regular": {
+			Config: &Config{
+				TLS: TLSConfig{
+					GetCert:       nil,
+					GetCertHolder: nil,
+				},
+				Dial: func(ctx context.Context, network, address string) (net.Conn, error) { return nil, nil },
+				DialHolder: &DialHolder{
+					Dial: func(ctx context.Context, network, address string) (net.Conn, error) { return nil, nil },
+				},
+			},
+			Err: true,
+		},
+		"non-nil cert holder+internal and non-nil regular": {
+			Config: &Config{
+				TLS: TLSConfig{
+					GetCert: func() (*tls.Certificate, error) { return nil, nil },
+					GetCertHolder: &GetCertHolder{
+						GetCert: func() (*tls.Certificate, error) { return nil, nil },
+					},
+				},
+				Dial:       nil,
+				DialHolder: nil,
+			},
+			Err: true,
+		},
+		"non-nil holders+internal and non-nil regular with correct address": {
+			Config: &Config{
+				TLS: TLSConfig{
+					GetCert:       globalGetCert.GetCert,
 					GetCertHolder: globalGetCert,
 				},
+				Dial:       globalDial.Dial,
 				DialHolder: globalDial,
 			},
 			Err:          false,

@@ -23,7 +23,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"net/http"
-	"os"
+	"reflect"
 	"sync"
 	"time"
 
@@ -61,12 +61,20 @@ func New(config *Config) (http.RoundTripper, error) {
 }
 
 func isValidHolders(config *Config) bool {
-	if config.TLS.GetCertHolder != nil && config.TLS.GetCertHolder.GetCert == nil {
-		return false
+	if config.TLS.GetCertHolder != nil {
+		if config.TLS.GetCertHolder.GetCert == nil ||
+			config.TLS.GetCert == nil ||
+			reflect.ValueOf(config.TLS.GetCertHolder.GetCert).Pointer() != reflect.ValueOf(config.TLS.GetCert).Pointer() {
+			return false
+		}
 	}
 
-	if config.DialHolder != nil && config.DialHolder.Dial == nil {
-		return false
+	if config.DialHolder != nil {
+		if config.DialHolder.Dial == nil ||
+			config.Dial == nil ||
+			reflect.ValueOf(config.DialHolder.Dial).Pointer() != reflect.ValueOf(config.Dial).Pointer() {
+			return false
+		}
 	}
 
 	return true

@@ -67,8 +67,11 @@ type Config struct {
 	// instead of setting this value directly.
 	WrapTransport WrapperFunc
 
-	// DialHolder specifies the dial function for creating unencrypted TCP connections.
-	// This struct indirection is used to make transport configs cacheable.
+	// Dial specifies the dial function for creating unencrypted TCP connections.
+	// If specified, this transport will be non-cacheable unless DialHolder is also set.
+	Dial func(ctx context.Context, network, address string) (net.Conn, error)
+	// DialHolder can be populated to make transport configs cacheable.
+	// If specified, DialHolder.Dial must be equal to Dial.
 	DialHolder *DialHolder
 
 	// Proxy is the proxy func to be used for all requests made by this
@@ -150,7 +153,10 @@ type TLSConfig struct {
 	NextProtos []string
 
 	// Callback that returns a TLS client certificate. CertData, CertFile, KeyData and KeyFile supercede this field.
-	// This struct indirection is used to make transport configs cacheable.
+	// If specified, this transport is non-cacheable unless CertHolder is populated.
+	GetCert func() (*tls.Certificate, error)
+	// CertHolder can be populated to make transport configs that set GetCert cacheable.
+	// If set, CertHolder.GetCert must be equal to GetCert.
 	GetCertHolder *GetCertHolder
 }
 
