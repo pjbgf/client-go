@@ -11,7 +11,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/golang/protobuf v1.5.2
 	github.com/google/gnostic v0.5.7-v3refs
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.5.8
 	github.com/google/gofuzz v1.1.0
 	github.com/google/uuid v1.3.0
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7
@@ -24,8 +24,8 @@ require (
 	golang.org/x/term v0.6.0
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8
 	google.golang.org/protobuf v1.28.0
-	k8s.io/api v0.0.0-20220810012946-5c4a1b197d1d
-	k8s.io/apimachinery v0.0.0-20220805001719-117bd9b56ec3
+	k8s.io/api v0.0.0
+	k8s.io/apimachinery v0.0.0
 	k8s.io/klog/v2 v2.70.1
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1
 	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed
@@ -59,6 +59,7 @@ require (
 )
 
 replace (
-	k8s.io/api => k8s.io/api v0.0.0-20220810012946-5c4a1b197d1d
-	k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20220805001719-117bd9b56ec3
+	k8s.io/api => ../api
+	k8s.io/apimachinery => ../apimachinery
+	k8s.io/client-go => ../client-go
 )
