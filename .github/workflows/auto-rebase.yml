@@ -1,0 +1,48 @@
+name: Auto Rebase
+on:
+  workflow_dispatch:
+    inputs:
+        upstreamTag:
+          description: "The latest tag from upstream to rebase the fork with"
+          required: true
+          default: "v0.X.X"
+          type: string
+        lastForkTag:
+            description: "The latest tag from the fork"
+            required: true
+            default: "v1.X.X-rancherX"
+            type: string
+
+permissions:
+  contents: write
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+
+      - name: Rebase latest fork tag with upstream changes
+        run: |
+          git config --global user.email "auto-rebase[bot]@users.noreply.github.com"
+          git config --global user.name "auto-rebase[bot]"
+
+          git remote add upstream "${UPSTREAM_URL}"
+          git fetch upstream "refs/tags/${UPSTREAM_TAG}:refs/tags/${UPSTREAM_TAG}"
+          
+          git remote add fork "${FORK_URL}"
+          git fetch fork "refs/tags/${LAST_FORK_TAG}:refs/tags/${LAST_FORK_TAG}"
+          
+          git checkout "${LAST_FORK_TAG}"
+          git switch -c "${NEW_BRANCH_PREFIX}${UPSTREAM_TAG}"
+          git rebase --reapply-cherry-picks -X theirs "${UPSTREAM_TAG}"
+          
+          git push --set-upstream origin "${NEW_BRANCH_PREFIX}${UPSTREAM_TAG}"
+
+        env:
+            NEW_BRANCH_PREFIX: 'rancher-'
+            UPSTREAM_URL: 'https://github.com/kubernetes/client-go.git'
+            UPSTREAM_TAG: '${{ github.event.inputs.upstreamTag }}'
+            FORK_URL: 'https://github.com/rancher/client-go.git'
+            LAST_FORK_TAG: '${{ github.event.inputs.lastForkTag }}'
